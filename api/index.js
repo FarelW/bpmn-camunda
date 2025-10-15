@@ -115,6 +115,22 @@ app.post("/book/:customer_id/:seat_id", (req, res) => {
   });
 });
 
+app.get("/payments/:payment_id", (req, res) => {
+  const paymentId = req.params.payment_id;
+
+  res.json({
+    payment_id: paymentId,
+    customer_id: 1,
+    seat_id: 1,
+    payment_code: "PAY-123456",
+    amount: 50000,
+    status: "PENDING",
+    message: "Dummy payment detail"
+  });
+});
+
+
+
 // Health check endpoint
 app.get("/", (req, res) => {
   res.json({
