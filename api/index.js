@@ -48,6 +48,7 @@ app.get("/customers/:customer_id/active-order", (req, res) => {
   if (!customer) {
     // kalau tidak ketemu
     return res.status(404).json({
+      customer_id: customerId,
       error: "Customer not found",
     });
   }
