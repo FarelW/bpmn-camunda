@@ -65,71 +65,53 @@ app.get("/customers/:customer_id/active-order", (req, res) => {
 
 app.put("/seats/:seat_id", (req, res) => {
   const seatId = parseInt(req.params.seat_id);
-  const { status } = req.body;
+  const seat = seatsData.find(s => s.id === seatId);
+
+  if (!seat) {
+    return res.status(404).json({ error: "Seat not found" });
+  }
+
+  seat.status = false; // tandai kursi terpakai
 
   res.json({
-    message: `Seat ${seatId} updated successfully`,
-    seat: { id: seatId, status: status },
+    message: `Seat ${seatId} locked successfully`,
+    seat
   });
 });
 
-app.get("/payment-details/:order_id", (req, res) => {
-  const orderId = req.params.order_id;
-
-  const dummyPaymentDetails = {
-    order_id: orderId,
-    selected_seats: [1, 3, 5],
-    departure_schedule: "Jakarta - Bandung",
-    departure_time: "08:00",
-    departure_date: "2024-01-15",
-    arrival_time: "12:00",
-    price_per_seat: 150000,
-    total_seats: 3,
-    total_price: 450000,
-    payment_code: `PAY${orderId}`,
-    customer_name: "John Doe",
-    booking_date: "2024-01-10",
-    payment_status: "pending",
-    payment_deadline: "2024-01-12 23:59",
-  };
-
-  res.json(dummyPaymentDetails);
-});
-
-app.post("/customers/:customer_id/release-lock", (req, res) => {
+app.put("/customers/:customer_id/active-order", (req, res) => {
   const customerId = parseInt(req.params.customer_id);
+  const customer = customersData.find(c => c.id === customerId);
+
+  if (!customer) {
+    return res.status(404).json({ error: "Customer not found" });
+  }
+
+  customer.active_order = true; // tandai customer punya pesanan aktif
 
   res.json({
-    message: `Customer ${customerId} lock released successfully`,
-    customer_id: customerId,
-    lock_status: "released",
-    active_order: false,
-    timestamp: "2024-01-10 10:30:00",
+    message: `Customer ${customerId} set active order`,
+    customer
   });
 });
 
-app.post("/seats/release-lock", (req, res) => {
-  const { seat_ids } = req.body;
+app.post("/book/:customer_id/:seat_id", async (req, res) => {
+  const { customer_id, seat_id } = req.params;
 
-  res.json({
-    message: `Seats ${seat_ids} lock released successfully`,
-    released_seats: seat_ids,
-    lock_status: "released",
-    seats_available: true,
-    timestamp: "2024-01-10 10:30:00",
-  });
-});
+  try {
+    const [seatRes, customerRes] = await Promise.all([
+      axios.put(`http://localhost:3000/seats/${seat_id}`),
+      axios.put(`http://localhost:3000/customers/${customer_id}/active-order`)
+    ]);
 
-app.post("/orders/:order_id/release-lock", (req, res) => {
-  const orderId = req.params.order_id;
-
-  res.json({
-    message: `Order ${orderId} lock released successfully`,
-    order_id: orderId,
-    lock_status: "released",
-    order_status: "cancelled",
-    timestamp: "2024-01-10 10:30:00",
-  });
+    res.json({
+      message: "Booking success",
+      seat: seatRes.data.seat,
+      customer: customerRes.data.customer
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Booking failed", details: err.message });
+  }
 });
 
 // Health check endpoint
