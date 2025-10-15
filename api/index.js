@@ -128,29 +128,33 @@ app.get("/payments/:payment_id", (req, res) => {
   });
 });
 
-app.post("/payments/process", (req, res) => {
-  const { balance } = req.body; // ambil parameter balance dari body (boolean)
+app.post("/payments/process/:flag", (req, res) => {
+  const flag = req.params.flag;
 
-  // validasi input
-  if (typeof balance !== "boolean") {
+  // konversi param ke boolean
+  let balance;
+  if (flag === "1") {
+    balance = true;
+  } else if (flag === "0") {
+    balance = false;
+  } else {
     return res.status(400).json({
-      error: "Parameter 'balance' harus berupa boolean (true/false)",
+      error: "Parameter harus 1 (true) atau 0 (false)"
     });
   }
 
-  if (balance === true) {
-    // saldo cukup
+  // response sesuai kondisi balance
+  if (balance) {
     res.json({
       payment_id: "1",
       balance: true,
-      message: "Pembayaran berhasil diproses",
+      message: "Pembayaran berhasil diproses"
     });
   } else {
-    // saldo tidak cukup
     res.json({
       payment_id: "1",
       balance: false,
-      message: "Saldo tidak mencukupi, pembayaran gagal",
+      message: "Saldo tidak mencukupi, pembayaran gagal"
     });
   }
 });
