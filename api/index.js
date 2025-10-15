@@ -42,11 +42,24 @@ app.get("/seats", (req, res) => {
 app.get("/customers/:customer_id/active-order", (req, res) => {
   const customerId = parseInt(req.params.customer_id);
 
+  // cari data customer
+  const customer = customersData.find(c => c.id === customerId);
+
+  if (!customer) {
+    // kalau tidak ketemu
+    return res.status(404).json({
+      error: "Customer not found",
+    });
+  }
+
+  // kalau ketemu, return data sesuai kondisi
   res.json({
-    customer_id: customerId,
-    customer_name: "Dummy Customer",
-    has_active_order: false,
-    message: "Customer has no active order",
+    customer_id: customer.id,
+    customer_name: customer.name,
+    any_order: customer.active_order,  // sinkron dengan BPMN
+    message: customer.active_order
+      ? "Customer has an active order"
+      : "Customer has no active order",
   });
 });
 
