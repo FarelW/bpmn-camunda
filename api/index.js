@@ -43,7 +43,7 @@ app.get("/customers/:customer_id/active-order", (req, res) => {
   const customerId = parseInt(req.params.customer_id);
 
   // cari data customer
-  const customer = customersData.find(c => c.id === customerId);
+  const customer = customersData.find((c) => c.id === customerId);
 
   if (!customer) {
     // kalau tidak ketemu
@@ -57,7 +57,7 @@ app.get("/customers/:customer_id/active-order", (req, res) => {
   res.json({
     customer_id: customer.id,
     customer_name: customer.name,
-    any_order: customer.active_order,  // sinkron dengan BPMN
+    any_order: customer.active_order, // sinkron dengan BPMN
     message: customer.active_order
       ? "Customer has an active order"
       : "Customer has no active order",
@@ -66,7 +66,7 @@ app.get("/customers/:customer_id/active-order", (req, res) => {
 
 app.put("/seats/:seat_id", (req, res) => {
   const seatId = parseInt(req.params.seat_id);
-  const seat = seatsData.find(s => s.id === seatId);
+  const seat = seatsData.find((s) => s.id === seatId);
 
   if (!seat) {
     return res.status(404).json({ error: "Seat not found" });
@@ -75,14 +75,14 @@ app.put("/seats/:seat_id", (req, res) => {
   // tidak ubah data, hanya return dummy
   res.json({
     message: `Seat ${seatId} locked successfully (dummy)`,
-    seat: { ...seat, status: false } // status dipaksa false di response
+    seat: { ...seat, status: false }, // status dipaksa false di response
   });
 });
 
 // Dummy set active order
 app.put("/customers/:customer_id/active-order", (req, res) => {
   const customerId = parseInt(req.params.customer_id);
-  const customer = customersData.find(c => c.id === customerId);
+  const customer = customersData.find((c) => c.id === customerId);
 
   if (!customer) {
     return res.status(404).json({ error: "Customer not found" });
@@ -91,7 +91,7 @@ app.put("/customers/:customer_id/active-order", (req, res) => {
   // tidak ubah data, hanya return dummy
   res.json({
     message: `Customer ${customerId} set active order (dummy)`,
-    customer: { ...customer, active_order: true }
+    customer: { ...customer, active_order: true },
   });
 });
 
@@ -99,8 +99,8 @@ app.put("/customers/:customer_id/active-order", (req, res) => {
 app.post("/book/:customer_id/:seat_id", (req, res) => {
   const { customer_id, seat_id } = req.params;
 
-  const seat = seatsData.find(s => s.id === parseInt(seat_id));
-  const customer = customersData.find(c => c.id === parseInt(customer_id));
+  const seat = seatsData.find((s) => s.id === parseInt(seat_id));
+  const customer = customersData.find((c) => c.id === parseInt(customer_id));
 
   if (!seat || !customer) {
     return res.status(404).json({ error: "Seat or customer not found" });
@@ -110,7 +110,7 @@ app.post("/book/:customer_id/:seat_id", (req, res) => {
   res.json({
     message: "Booking success (dummy)",
     seat: { ...seat, status: false },
-    customer: { ...customer, active_order: true }
+    customer: { ...customer, active_order: true },
   });
 });
 
@@ -124,11 +124,36 @@ app.get("/payments/:payment_id", (req, res) => {
     payment_code: "PAY-123456",
     amount: 50000,
     status: "PENDING",
-    message: "Dummy payment detail"
+    message: "Dummy payment detail",
   });
 });
 
+app.post("/payments/process", (req, res) => {
+  const { balance } = req.body; // ambil parameter balance dari body (boolean)
 
+  // validasi input
+  if (typeof balance !== "boolean") {
+    return res.status(400).json({
+      error: "Parameter 'balance' harus berupa boolean (true/false)",
+    });
+  }
+
+  if (balance === true) {
+    // saldo cukup
+    res.json({
+      payment_id: "1",
+      balance: true,
+      message: "Pembayaran berhasil diproses",
+    });
+  } else {
+    // saldo tidak cukup
+    res.json({
+      payment_id: "1",
+      balance: false,
+      message: "Saldo tidak mencukupi, pembayaran gagal",
+    });
+  }
+});
 
 // Health check endpoint
 app.get("/", (req, res) => {
