@@ -95,23 +95,24 @@ app.put("/customers/:customer_id/active-order", (req, res) => {
   });
 });
 
-app.post("/book/:customer_id/:seat_id", async (req, res) => {
+app.post("/book/:customer_id/:seat_id", (req, res) => {
   const { customer_id, seat_id } = req.params;
 
-  try {
-    const [seatRes, customerRes] = await Promise.all([
-      axios.put(`http://localhost:3000/seats/${seat_id}`),
-      axios.put(`http://localhost:3000/customers/${customer_id}/active-order`)
-    ]);
+  const seat = seatsData.find(s => s.id === parseInt(seat_id));
+  const customer = customersData.find(c => c.id === parseInt(customer_id));
 
-    res.json({
-      message: "Booking success",
-      seat: seatRes.data.seat,
-      customer: customerRes.data.customer
-    });
-  } catch (err) {
-    res.status(500).json({ error: "Booking failed", details: err.message });
+  if (!seat || !customer) {
+    return res.status(404).json({ error: "Seat or customer not found" });
   }
+
+  seat.status = false;
+  customer.active_order = true;
+
+  res.json({
+    message: "Booking success",
+    seat,
+    customer
+  });
 });
 
 // Health check endpoint
