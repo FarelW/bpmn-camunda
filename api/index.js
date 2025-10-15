@@ -71,14 +71,14 @@ app.put("/seats/:seat_id", (req, res) => {
     return res.status(404).json({ error: "Seat not found" });
   }
 
-  seat.status = false; // tandai kursi terpakai
-
+  // tidak ubah data, hanya return dummy
   res.json({
-    message: `Seat ${seatId} locked successfully`,
-    seat
+    message: `Seat ${seatId} locked successfully (dummy)`,
+    seat: { ...seat, status: false } // status dipaksa false di response
   });
 });
 
+// Dummy set active order
 app.put("/customers/:customer_id/active-order", (req, res) => {
   const customerId = parseInt(req.params.customer_id);
   const customer = customersData.find(c => c.id === customerId);
@@ -87,14 +87,14 @@ app.put("/customers/:customer_id/active-order", (req, res) => {
     return res.status(404).json({ error: "Customer not found" });
   }
 
-  customer.active_order = true; // tandai customer punya pesanan aktif
-
+  // tidak ubah data, hanya return dummy
   res.json({
-    message: `Customer ${customerId} set active order`,
-    customer
+    message: `Customer ${customerId} set active order (dummy)`,
+    customer: { ...customer, active_order: true }
   });
 });
 
+// Dummy booking
 app.post("/book/:customer_id/:seat_id", (req, res) => {
   const { customer_id, seat_id } = req.params;
 
@@ -105,13 +105,11 @@ app.post("/book/:customer_id/:seat_id", (req, res) => {
     return res.status(404).json({ error: "Seat or customer not found" });
   }
 
-  seat.status = false;
-  customer.active_order = true;
-
+  // tidak ubah data asli, hanya return dummy response
   res.json({
-    message: "Booking success",
-    seat,
-    customer
+    message: "Booking success (dummy)",
+    seat: { ...seat, status: false },
+    customer: { ...customer, active_order: true }
   });
 });
 
