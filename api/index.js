@@ -159,6 +159,18 @@ app.post("/payments/process/:flag", (req, res) => {
   }
 });
 
+app.get("/tickets/:ticket_id", (req, res) => {
+  const ticketId = req.params.ticket_id;
+
+  res.json({
+    ticket_id: ticketId,
+    customer_id: 1,
+    seat_id: 1,
+    payment_code: "PAY-123456",
+    message: "Dummy payment detail",
+  });
+});
+
 // Health check endpoint
 app.get("/", (req, res) => {
   res.json({
